@@ -34,12 +34,20 @@ void test(T* netio) {
 	} else {
 		AbandonIO* aio = new AbandonIO();
 		HalfGateGen<AbandonIO>::circ_exec = new HalfGateGen<AbandonIO>(aio);
-
+		auto gen = HalfGateGen<AbandonIO>::circ_exec;
+		uint64_t and_before = gen->num_and();
 		auto start = clock_start();
 		for (int i = 0; i < 100; ++i) {
 			cf.compute(c, a, b);
 		}
+		uint64_t and_after = gen->num_and();
 		double interval = time_from(start);
+		uint64_t and_count = and_after - and_before;
+		cout << "Gates used: " << and_count << "\n";
+		cout << "Time (ms): " << interval << "\n";
+		cout << "Throughput: "
+     		<< (and_count / (interval / 1000.0)) / 1e6
+     		<< " M gates/s\n";
 		cout << "Pure AES garbling speed : " << 100 * 6800 / interval << " million gate per second\n";
 		delete aio;
 		delete HalfGateGen<AbandonIO>::circ_exec;
